@@ -80,9 +80,14 @@ $game = [
     const keys = Object.create(null);
     const MOVESPEED = 3.0;
     const ROTSPEED = 2.2;
+    const MAX_DPR = 2;
+    const LARGE_DIST = 1e30;
+    const MIN_BRIGHTNESS = 0.28;
+    const DISTANCE_FALLOFF = 0.08;
+    const SIDE_DARKEN = 0.72;
 
     function resize() {
-      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const dpr = Math.max(1, Math.min(MAX_DPR, window.devicePixelRatio || 1));
       const w = Math.max(320, Math.floor(window.innerWidth * dpr));
       const h = Math.max(240, Math.floor(window.innerHeight * dpr));
       if (canvas.width === w && canvas.height === h) return;
@@ -149,8 +154,8 @@ $game = [
         let mapX = player.x | 0;
         let mapY = player.y | 0;
 
-        const deltaDistX = rayDirX === 0 ? 1e30 : Math.abs(1 / rayDirX);
-        const deltaDistY = rayDirY === 0 ? 1e30 : Math.abs(1 / rayDirY);
+        const deltaDistX = rayDirX === 0 ? LARGE_DIST : Math.abs(1 / rayDirX);
+        const deltaDistY = rayDirY === 0 ? LARGE_DIST : Math.abs(1 / rayDirY);
 
         let sideDistX, sideDistY;
         let stepX, stepY;
@@ -205,8 +210,8 @@ $game = [
         const drawEnd = Math.min(height - 1, halfHeight + (lineHeight >> 1));
 
         const base = WALL_COLORS[wallType] || "#bfbfbf";
-        const depthShade = Math.max(0.28, 1 - perpWallDist * 0.08);
-        const sideShade = side === 1 ? 0.72 : 1.0;
+        const depthShade = Math.max(MIN_BRIGHTNESS, 1 - perpWallDist * DISTANCE_FALLOFF);
+        const sideShade = side === 1 ? SIDE_DARKEN : 1.0;
         ctx.fillStyle = shade(base, depthShade * sideShade);
         ctx.fillRect(x, drawStart, 1, drawEnd - drawStart + 1);
       }
