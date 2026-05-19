@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+$fovFactor = 0.66;
+
 $game = [
     'map' => [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -26,7 +28,7 @@ $game = [
         'dirX' => -1.0,
         'dirY' => 0.0,
         'planeX' => 0.0,
-        'planeY' => 0.66,
+        'planeY' => $fovFactor,
     ],
 ];
 ?>
@@ -85,6 +87,7 @@ $game = [
     const MIN_BRIGHTNESS = 0.28;
     const DISTANCE_FALLOFF = 0.08;
     const SIDE_DARKEN = 0.72;
+    const MAX_FRAME_TIME = 0.05;
 
     function resize() {
       const dpr = Math.max(1, Math.min(MAX_DPR, window.devicePixelRatio || 1));
@@ -219,7 +222,7 @@ $game = [
 
     let last = performance.now();
     function frame(now) {
-      const dt = Math.min(0.05, (now - last) / 1000);
+      const dt = Math.min(MAX_FRAME_TIME, (now - last) / 1000);
       last = now;
       resize();
       applyMovement(dt);
