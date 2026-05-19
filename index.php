@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-const CAMERA_PLANE_Y = 0.66;
+const PLAYER_PLANE_Y = 0.66;
 
 $game = [
     'map' => [
@@ -28,7 +28,7 @@ $game = [
         'dirX' => -1.0,
         'dirY' => 0.0,
         'planeX' => 0.0,
-        'planeY' => CAMERA_PLANE_Y,
+        'planeY' => PLAYER_PLANE_Y,
     ],
 ];
 ?>
@@ -159,8 +159,8 @@ $game = [
         let mapX = player.x | 0;
         let mapY = player.y | 0;
 
-        const deltaDistX = rayDirX === 0 ? RAY_INFINITY : Math.abs(1 / rayDirX);
-        const deltaDistY = rayDirY === 0 ? RAY_INFINITY : Math.abs(1 / rayDirY);
+        const deltaDistX = Math.abs(rayDirX) < SAFE_EPSILON ? RAY_INFINITY : Math.abs(1 / rayDirX);
+        const deltaDistY = Math.abs(rayDirY) < SAFE_EPSILON ? RAY_INFINITY : Math.abs(1 / rayDirY);
 
         let sideDistX, sideDistY;
         let stepX, stepY;
@@ -224,8 +224,9 @@ $game = [
       }
     }
 
-    let last = performance.now();
+    let last = null;
     function frame(now) {
+      if (last === null) last = now;
       const dt = Math.min(MAX_FRAME_TIME, (now - last) / 1000);
       last = now;
       resize();
