@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-$fovFactor = 0.66;
+const CAMERA_PLANE_Y = 0.66;
 
 $game = [
     'map' => [
@@ -28,7 +28,7 @@ $game = [
         'dirX' => -1.0,
         'dirY' => 0.0,
         'planeX' => 0.0,
-        'planeY' => $fovFactor,
+        'planeY' => CAMERA_PLANE_Y,
     ],
 ];
 ?>
@@ -83,11 +83,12 @@ $game = [
     const MOVESPEED = 3.0;
     const ROTSPEED = 2.2;
     const MAX_DPR = 2;
-    const LARGE_DIST = 1e30;
+    const RAY_INFINITY = 1e30;
     const MIN_BRIGHTNESS = 0.28;
     const DISTANCE_FALLOFF = 0.08;
     const SIDE_DARKEN = 0.72;
     const MAX_FRAME_TIME = 0.05;
+    const DEFAULT_WALL_COLOR = "#bfbfbf";
 
     function resize() {
       const dpr = Math.max(1, Math.min(MAX_DPR, window.devicePixelRatio || 1));
@@ -157,8 +158,8 @@ $game = [
         let mapX = player.x | 0;
         let mapY = player.y | 0;
 
-        const deltaDistX = rayDirX === 0 ? LARGE_DIST : Math.abs(1 / rayDirX);
-        const deltaDistY = rayDirY === 0 ? LARGE_DIST : Math.abs(1 / rayDirY);
+        const deltaDistX = rayDirX === 0 ? RAY_INFINITY : Math.abs(1 / rayDirX);
+        const deltaDistY = rayDirY === 0 ? RAY_INFINITY : Math.abs(1 / rayDirY);
 
         let sideDistX, sideDistY;
         let stepX, stepY;
@@ -212,7 +213,7 @@ $game = [
         const drawStart = Math.max(0, halfHeight - (lineHeight >> 1));
         const drawEnd = Math.min(height - 1, halfHeight + (lineHeight >> 1));
 
-        const base = WALL_COLORS[wallType] || "#bfbfbf";
+        const base = WALL_COLORS[wallType] || DEFAULT_WALL_COLOR;
         const depthShade = Math.max(MIN_BRIGHTNESS, 1 - perpWallDist * DISTANCE_FALLOFF);
         const sideShade = side === 1 ? SIDE_DARKEN : 1.0;
         ctx.fillStyle = shade(base, depthShade * sideShade);
