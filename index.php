@@ -89,6 +89,7 @@ $game = [
     const SIDE_DARKEN = 0.72;
     const MAX_FRAME_TIME = 0.05;
     const DEFAULT_WALL_COLOR = "#bfbfbf";
+    const SAFE_EPSILON = 1e-8;
 
     function resize() {
       const dpr = Math.max(1, Math.min(MAX_DPR, window.devicePixelRatio || 1));
@@ -203,9 +204,11 @@ $game = [
 
         let perpWallDist;
         if (side === 0) {
-          perpWallDist = (mapX - player.x + (1 - stepX) * 0.5) / rayDirX;
+          const denomX = Math.abs(rayDirX) < SAFE_EPSILON ? (rayDirX < 0 ? -SAFE_EPSILON : SAFE_EPSILON) : rayDirX;
+          perpWallDist = (mapX - player.x + (1 - stepX) * 0.5) / denomX;
         } else {
-          perpWallDist = (mapY - player.y + (1 - stepY) * 0.5) / rayDirY;
+          const denomY = Math.abs(rayDirY) < SAFE_EPSILON ? (rayDirY < 0 ? -SAFE_EPSILON : SAFE_EPSILON) : rayDirY;
+          perpWallDist = (mapY - player.y + (1 - stepY) * 0.5) / denomY;
         }
         perpWallDist = Math.max(perpWallDist, 0.0001);
 
@@ -231,8 +234,15 @@ $game = [
       requestAnimationFrame(frame);
     }
 
-    window.addEventListener("keydown", (e) => { keys[e.code] = true; }, { passive: true });
-    window.addEventListener("keyup", (e) => { keys[e.code] = false; }, { passive: true });
+    const CONTROL_KEYS = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
+    window.addEventListener("keydown", (e) => {
+      if (CONTROL_KEYS.has(e.code)) e.preventDefault();
+      keys[e.code] = true;
+    });
+    window.addEventListener("keyup", (e) => {
+      if (CONTROL_KEYS.has(e.code)) e.preventDefault();
+      keys[e.code] = false;
+    });
     window.addEventListener("resize", resize, { passive: true });
     resize();
     requestAnimationFrame(frame);
