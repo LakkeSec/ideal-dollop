@@ -76,6 +76,7 @@ $game = [
     ];
 
     const canvas = document.getElementById("game");
+    if (!canvas) throw new Error("Canvas element #game not found");
     const ctx = canvas.getContext("2d", { alpha: false });
     let width = 0, height = 0, halfHeight = 0;
 
@@ -145,6 +146,11 @@ $game = [
       return `rgb(${r},${g},${b})`;
     }
 
+    function safeDenom(value) {
+      if (Math.abs(value) < SAFE_EPSILON) return value < 0 ? -SAFE_EPSILON : SAFE_EPSILON;
+      return value;
+    }
+
     function render() {
       ctx.fillStyle = "#202028";
       ctx.fillRect(0, 0, width, halfHeight);
@@ -204,11 +210,9 @@ $game = [
 
         let perpWallDist;
         if (side === 0) {
-          const denomX = Math.abs(rayDirX) < SAFE_EPSILON ? (rayDirX < 0 ? -SAFE_EPSILON : SAFE_EPSILON) : rayDirX;
-          perpWallDist = (mapX - player.x + (1 - stepX) * 0.5) / denomX;
+          perpWallDist = (mapX - player.x + (1 - stepX) * 0.5) / safeDenom(rayDirX);
         } else {
-          const denomY = Math.abs(rayDirY) < SAFE_EPSILON ? (rayDirY < 0 ? -SAFE_EPSILON : SAFE_EPSILON) : rayDirY;
-          perpWallDist = (mapY - player.y + (1 - stepY) * 0.5) / denomY;
+          perpWallDist = (mapY - player.y + (1 - stepY) * 0.5) / safeDenom(rayDirY);
         }
         perpWallDist = Math.max(perpWallDist, 0.0001);
 
